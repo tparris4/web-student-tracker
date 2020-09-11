@@ -74,9 +74,9 @@ public class StudentControllerServlet extends HttpServlet {
 				break;
 		
 				
-			case "ADD":
-				addStudent(request, response);
-				break;
+//			case "ADD":
+//				addStudent(request, response);
+//				break;
 				
 			case "UPDATE":
 				updateStudent(request, response);
@@ -91,6 +91,10 @@ public class StudentControllerServlet extends HttpServlet {
 			case "DELETE":
 				deleteStudent(request, response);
 				break;
+				
+            case "SEARCH":
+                searchStudents(request, response);
+                break;
 				
 			default:
 				listStudents(request, response);
@@ -111,7 +115,63 @@ public class StudentControllerServlet extends HttpServlet {
 		
 	}
 
+	  protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+	        try {
+	            // read the "command" parameter
+	            String theCommand = request.getParameter("command");
+	                    
+	            // route to the appropriate method
+	            switch (theCommand) {
+	                            
+	            case "ADD":
+	                addStudent(request, response);
+	                break;
+	                                
+	            default:
+	                listStudents(request, response);
+	            }
+	                
+	        }
+	        catch (Exception exc) {
+	            throw new ServletException(exc);
+	        }
+	        
+	    }
+
+	    private void addStudent(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+	        // read student info from form data
+	        String firstName = request.getParameter("firstName");
+	        String lastName = request.getParameter("lastName");
+	        String email = request.getParameter("email");        
+	        
+	        // create a new student object
+	        Student theStudent = new Student(firstName, lastName, email);
+	        
+	        // add the student to the database
+	        studentDbUtil.addStudent(theStudent);
+	                
+	        // send back to main page (the student list)
+	        // SEND AS REDIRECT to avoid multiple-browser reload issue
+	        response.sendRedirect(request.getContextPath() + "/StudentControllerServlet?command=LIST");
+	    }
+
+
+        private void searchStudents(HttpServletRequest request, HttpServletResponse response) throws Exception {
+            // read search name from form data
+            String theSearchName = request.getParameter("theSearchName");
+            
+            // search students from db util
+            List<Student> students = studentDbUtil.searchStudents(theSearchName);
+            
+            // add students to the request
+            request.setAttribute("STUDENT_LIST", students);
+                    
+            // send to JSP page (view)
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/list-students.jsp");
+            dispatcher.forward(request, response);
+        }
 
 	private void deleteStudent(HttpServletRequest request, HttpServletResponse response) throws Exception{
 		// TODO Auto-generated method stub
@@ -176,25 +236,25 @@ public class StudentControllerServlet extends HttpServlet {
 
 
 
-	private void addStudent(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		// TODO Auto-generated method stub
-		
-		
-		// read student info from form data
-		String firstName = request.getParameter("firstName");
-		String lastName = request.getParameter("lastName");
-		String email = request.getParameter("email");
-		
-		
-		// create a new Student object
-		Student theStudent = new Student(firstName, lastName, email);
-		
-	
-		//add the student to the database
-		studentDbUtil.addStudent(theStudent);
-		// send back to main page (the student list)
-		listStudents(request, response);
-	}
+//	private void addStudent(HttpServletRequest request, HttpServletResponse response) throws Exception {
+//		// TODO Auto-generated method stub
+//		
+//		
+//		// read student info from form data
+//		String firstName = request.getParameter("firstName");
+//		String lastName = request.getParameter("lastName");
+//		String email = request.getParameter("email");
+//		
+//		
+//		// create a new Student object
+//		Student theStudent = new Student(firstName, lastName, email);
+//		
+//	
+//		//add the student to the database
+//		studentDbUtil.addStudent(theStudent);
+//		// send back to main page (the student list)
+//		listStudents(request, response);
+//	}
 
 	
 	
